@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola SEM Semito V3.0 | Italzip Colombia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        darker: '#1e293b',
+                        brandBlue: '#3b82f6',
+                        brandGreen: '#10b981',
+                        brandYellow: '#f59e0b',
+                        brandRed: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .ad-preview-box { background-color: #ffffff; color: #1a0dab; font-family: arial, sans-serif; position: relative; }
+        .ad-url { color: #202124; font-size: 14px; }
+        .ad-headline { color: #1a0dab; font-size: 20px; text-decoration: none; font-weight: 400; line-height: 1.3; }
+        .ad-headline:hover { text-decoration: underline; }
+        .ad-description { color: #4d5156; font-size: 14px; line-height: 1.58; }
+        .ad-sitelink { color: #1a0dab; font-size: 14px; }
+        .ad-sitelink:hover { text-decoration: underline; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Print Styles for Agency Approvals */
+        @media print {
+            body { background: white !important; color: black !important; padding: 0; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .ad-preview-box { border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 20px; box-shadow: none !important; }
+            .dark\:bg-darker { background: white !important; }
+            .print-header { font-size: 24px; font-weight: bold; margin-bottom: 20px; color: black; display: block; }
+            .tab-content { display: block !important; } /* Show all tabs on print */
+            *[contenteditable] { border: none !important; padding: 0 !important; background: transparent !important; }
+        }
+
+        /* Editable Blocks */
+        [contenteditable="true"] {
+            outline: 2px dashed #f59e0b;
+            padding: 8px;
+            background-color: rgba(245, 158, 11, 0.05);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        [contenteditable="true"]:focus {
+            outline: 2px solid #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Flowchart Styles */
+        .flow-node { padding: 12px; border-radius: 6px; font-size: 12px; text-align: center; border: 1px solid #475569; position: relative; z-index: 10; }
+        .flow-line-v { width: 2px; height: 20px; background-color: #475569; margin: 0 auto; }
+        .flow-connector-h { width: 100%; height: 2px; background-color: #475569; position: absolute; top: -10px; z-index: 1;}
+        
+        /* Hide element utility */
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="p-6 max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <header class="mb-6 border-b border-gray-700 pb-4 no-print flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">⚡ Consola de Mando SEM | Italzip Colombia</h1>
+            <p class="text-gray-400">Framework Semito V3.0 - Arquitectura de Dominio Semántico</p>
+        </div>
+        <div class="text-right flex flex-col gap-2 items-end">
+            <div>
+                <span class="px-3 py-1 bg-blue-900 text-blue-300 rounded-full text-sm font-semibold">KPI: MQLs WhatsApp</span>
+                <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm font-semibold ml-2">Presupuesto: $1M CLP</span>
+            </div>
+            <button onclick="downloadAsHtml()" class="bg-brandBlue hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition shadow flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Exportar Dashboard Modificado (Para Agencia)
+            </button>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="flex border-b border-gray-700 mb-8 no-print overflow-x-auto">
+        <button onclick="switchTab('tab-operaciones')" id="btn-tab-operaciones" class="tab-btn px-6 py-3 border-b-2 border-brandBlue text-brandBlue font-bold whitespace-nowrap transition-colors">
+            📊 1. Consola Operativa (Keywords & Ads)
+        </button>
+        <button onclick="switchTab('tab-estrategia')" id="btn-tab-estrategia" class="tab-btn px-6 py-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-bold whitespace-nowrap transition-colors">
+            🧠 2. Estrategia & Insights SEM/Email
+        </button>
+        <button onclick="switchTab('tab-brief')" id="btn-tab-brief" class="tab-btn px-6 py-3 border-b-2 border-transparent text-gray-400 hover:text-gray-200 font-bold whitespace-nowrap transition-colors">
+            📋 3. Brief Agencia (Reglas & KPIs)
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: CONSOLA OPERATIVA -->
+    <!-- ========================================== -->
+    <div id="tab-operaciones" class="tab-content block">
+        <!-- KPIs & Clusters Visualizer -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 no-print">
+            <div class="bg-darker p-6 rounded-lg border-l-4 border-brandBlue shadow-lg flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold mb-4 flex items-center">📊 Distribución de Presupuesto</h3>
+                    <div class="space-y-4 mb-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span>Google Search (SEM)</span><span class="font-bold">60%</span></div>
+                            <div class="w-full bg-gray-700 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span>Meta Ads (B2B Retargeting)</span><span class="font-bold">30%</span></div>
+                            <div class="w-full bg-gray-700 rounded-full h-2"><div class="bg-blue-400 h-2 rounded-full" style="width: 30%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span>YouTube (Demo Maquinaria)</span><span class="font-bold">10%</span></div>
+                            <div class="w-full bg-gray-700 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width: 10%"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 text-xs text-gray-400 bg-gray-800 p-3 rounded">
+                    <strong class="text-white block mb-1">🧠 Sustentación Data-Driven (Media Mix):</strong>
+                    Performance sobre Alcance. <strong>Google SEM (60%)</strong> ataca la alta intención B2B de quienes buscan proveedores hoy (costo más alto pero alta tasa de conversión a Lead). <strong>Meta (30%)</strong> segmenta dueños de Pymes industriales nutriendo con Casos de Éxito y Certificaciones. <strong>YouTube (10%)</strong> capitaliza el material visual de Andinapack enfocando en la maquinaria B2B.
+                </div>
+            </div>
+
+            <div class="bg-darker p-6 rounded-lg border-l-4 border-brandYellow shadow-lg lg:col-span-2">
+                <h3 class="text-lg font-bold mb-4">🎯 Arquitectura y Criterio de Clusters</h3>
+                <div class="w-full bg-gray-700 rounded-full h-8 flex overflow-hidden mb-4 shadow-inner">
+                    <div class="bg-brandBlue h-full flex items-center justify-center text-xs font-bold" style="width: 35%">C1: Zippers (35%)</div>
+                    <div class="bg-brandYellow text-gray-900 h-full flex items-center justify-center text-xs font-bold" style="width: 25%">C2: Válvulas (25%)</div>
+                    <div class="bg-brandGreen h-full flex items-center justify-center text-xs font-bold" style="width: 25%">C3: Maquinaria (25%)</div>
+                    <div class="bg-brandRed h-full flex items-center justify-center text-xs font-bold" style="width: 15%">C4: Negativas (15%)</div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+                    <div class="bg-gray-800 p-3 rounded border-l-2 border-brandBlue">
+                        <strong class="text-white">C1: Zippers (Fricción Cero)</strong><br>Rapidez entrega en Colombia (Bogotá, Medellín, Cali). Hermeticidad FDA.
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border-l-2 border-brandYellow">
+                        <strong class="text-white">C2: Válvulas (Calidad Europea)</strong><br>PP/PE reciclables. Protección CO2 para café.
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border-l-2 border-brandGreen">
+                        <strong class="text-white">C3: Maquinaria & Eficiencia</strong><br>Proyectos con Diagnóstico Integral. Máquinas Full Servo Eco Pouch o Valvuleras.
+                    </div>
+                    <div class="bg-gray-800 p-3 rounded border-l-2 border-brandRed">
+                        <strong class="text-white">Filtros (Ahorro Presupuesto)</strong><br>Bloqueo estricto a maquila/sellado manual/barato.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Management Tool -->
+        <div class="bg-darker p-6 rounded-lg shadow-lg mb-8 border-t-4 border-gray-500 no-print">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-brandBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    Gestor de Base de Datos de Keywords (Agencia)
+                </h3>
+                <button onclick="exportCSV()" class="bg-brandGreen hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition flex items-center text-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Exportar a CSV
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <select id="clusterSelect" class="bg-gray-800 text-white border border-gray-600 rounded p-2 text-sm outline-none w-1/2" onchange="updateKeywords()">
+                            <option value="c1">C1: Zippers Industriales (FDA, Entrega Nacional)</option>
+                            <option value="c2">C2: Válvulas (Desgasificadoras, PP/PE)</option>
+                            <option value="c3">C3: Maquinaria (Proyectos, Diagnóstico Integral)</option>
+                            <option value="c4">C4: NEGATIVAS (Bloqueos)</option>
+                            <option value="ce">⭐ Long-Tail: Eje Cafetero</option>
+                        </select>
+                        <span class="text-xs text-gray-400" id="kwCount">Total: 0</span>
+                    </div>
+                    <textarea id="keywordBox" readonly class="w-full h-64 bg-gray-900 text-green-400 border border-gray-700 p-3 font-mono text-sm rounded focus:outline-none focus:border-brandBlue"></textarea>
+                </div>
+                
+                <div class="bg-gray-800 p-4 rounded border border-gray-700 flex flex-col">
+                    <h4 class="font-bold text-sm mb-2 text-white">Añadir Nuevas Keywords</h4>
+                    <p class="text-xs text-gray-400 mb-2">Pega tu lista aquí (una por línea) y añádela al clúster seleccionado.</p>
+                    <textarea id="newKeywordsInput" class="w-full flex-grow bg-gray-900 text-white border border-gray-600 p-2 font-mono text-xs rounded mb-3 focus:outline-none focus:border-brandGreen" placeholder='"ejemplo keyword 1"&#10;"ejemplo keyword 2"'></textarea>
+                    <button onclick="addKeywords()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition text-sm">
+                        + Añadir al Clúster
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Ads Simulator -->
+        <div class="bg-darker p-6 rounded-lg shadow-lg mb-8">
+            <div class="flex justify-between items-center mb-6 no-print">
+                <h3 class="text-xl font-bold flex items-center">
+                    <span>🤖 Simulador SGE & Search Ads (Multivariante)</span>
+                </h3>
+                <button onclick="window.print()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded transition flex items-center text-sm shadow-lg">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Imprimir Mockups
+                </button>
+            </div>
+
+            <h2 class="hidden print-header">Mockups de Anuncios: Italzip Colombia 2026</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Ad C1 -->
+                <div class="ad-preview-box p-4 rounded shadow border border-gray-200 flex flex-col h-full">
+                    <div class="text-xs font-bold text-gray-500 mb-2 uppercase border-b pb-1">Pilar 1: Zippers Industriales</div>
+                    <div class="flex items-center mb-1">
+                        <span class="font-bold text-sm mr-2 text-black">Anuncio</span>
+                        <span class="ad-url">www.italzip.co/insumos/zippers</span>
+                    </div>
+                    <div class="ad-headline mb-1 cursor-pointer" id="ad-h-c1">
+                        Zippers Industriales Certificación FDA | Entrega a Todo Colombia | Italzip
+                    </div>
+                    <div class="ad-description mb-2 flex-grow" id="ad-d-c1">
+                        Agilidad en entrega a todo Colombia (Bogotá, Medellín, Cali). Calidad del insumo zipper con hermeticidad garantizada y certificación FDA.
+                    </div>
+                    <div class="flex gap-4 mt-2 border-t pt-2 border-gray-100">
+                        <span class="ad-sitelink cursor-pointer font-medium">Cotizar Volumen</span>
+                        <span class="ad-sitelink cursor-pointer font-medium">Fichas Técnicas FDA</span>
+                    </div>
+                    <!-- Rotator Button -->
+                    <button onclick="renderRandomAd('c1', 'ad-h-c1', 'ad-d-c1')" class="no-print mt-4 w-full bg-blue-50 hover:bg-blue-100 text-brandBlue font-semibold py-2 px-2 rounded border border-blue-200 transition text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Rotar Variante Zipper
+                    </button>
+                </div>
+                
+                <!-- Ad C2 -->
+                <div class="ad-preview-box p-4 rounded shadow border border-gray-200 flex flex-col h-full">
+                    <div class="text-xs font-bold text-gray-500 mb-2 uppercase border-b pb-1">Pilar 2: Válvulas Desgasificadoras</div>
+                    <div class="flex items-center mb-1">
+                        <span class="font-bold text-sm mr-2 text-black">Anuncio</span>
+                        <span class="ad-url">www.italzip.co/insumos/valvulas</span>
+                    </div>
+                    <div class="ad-headline mb-1 cursor-pointer" id="ad-h-c2">
+                        Válvulas Desgasificadoras Calidad Europea | 100% Reciclables PP/PE | Italzip
+                    </div>
+                    <div class="ad-description mb-2 flex-grow" id="ad-d-c2">
+                        El café recién tostado libera CO₂. Prevenga rupturas con válvulas desgasificadoras de protección de aroma. Calidad Europea en Colombia.
+                    </div>
+                    <div class="flex gap-4 mt-2 border-t pt-2 border-gray-100">
+                        <span class="ad-sitelink cursor-pointer font-medium">Válvulas Café Especial</span>
+                        <span class="ad-sitelink cursor-pointer font-medium">Consultoría Técnica</span>
+                    </div>
+                    <!-- Rotator Button -->
+                    <button onclick="renderRandomAd('c2', 'ad-h-c2', 'ad-d-c2')" class="no-print mt-4 w-full bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold py-2 px-2 rounded border border-yellow-200 transition text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Rotar Variante Válvula
+                    </button>
+                </div>
+                
+                <!-- Ad C3 -->
+                <div class="ad-preview-box p-4 rounded shadow border border-gray-200 flex flex-col h-full">
+                    <div class="text-xs font-bold text-gray-500 mb-2 uppercase border-b pb-1">Pilar 3: Maquinaria & Proyectos</div>
+                    <div class="flex items-center mb-1">
+                        <span class="font-bold text-sm mr-2 text-black">Anuncio</span>
+                        <span class="ad-url">www.italzip.co/maquinaria/soluciones</span>
+                    </div>
+                    <div class="ad-headline mb-1 cursor-pointer" id="ad-h-c3">
+                        Proyectos de Empaque a Medida | Diagnóstico Integral | Italzip Colombia
+                    </div>
+                    <div class="ad-description mb-2 flex-grow" id="ad-d-c3">
+                        Entendimiento de su negocio. Diagnóstico integral para implementar soluciones independientes: Full Servo Eco Pouch o Máquinas Valvuleras Corner.
+                    </div>
+                    <div class="flex gap-4 mt-2 border-t pt-2 border-gray-100">
+                        <span class="ad-sitelink cursor-pointer font-medium">Agendar Diagnóstico</span>
+                        <span class="ad-sitelink cursor-pointer font-medium">Ver Proyectos B2B</span>
+                    </div>
+                    <!-- Rotator Button -->
+                    <button onclick="renderRandomAd('c3', 'ad-h-c3', 'ad-d-c3')" class="no-print mt-4 w-full bg-green-50 hover:bg-green-100 text-green-700 font-semibold py-2 px-2 rounded border border-green-200 transition text-sm flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Rotar Variante Máquina
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: ESTRATEGIA & INSIGHTS SEM/EMAIL -->
+    <!-- ========================================== -->
+    <div id="tab-estrategia" class="tab-content hidden">
+        
+        <!-- SEM Insights (Español) -->
+        <div class="bg-darker p-6 rounded-lg shadow-lg border-t-4 border-brandBlue mb-8">
+            <h3 class="text-xl font-bold mb-4 text-brandBlue">💡 Content Gap & Reglas de Entidades (SEM/SGE)</h3>
+            <p class="text-sm text-gray-400 mb-6">Lineamientos obligatorios para Landing Pages y optimización algorítmica.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gray-800 p-5 rounded shadow">
+                    <div class="text-3xl mb-2">⚡</div>
+                    <strong class="text-white text-md block mb-2">Regla Semántica Zipper</strong>
+                    <p class="text-sm text-gray-300">Asociar siempre las keywords de "zipper" con modificadores de agilidad logística B2B: <span class="text-brandBlue font-mono bg-gray-900 px-1">entrega nacional</span>, <span class="text-brandBlue font-mono bg-gray-900 px-1">sin fricciones</span>. Integrar schema de producto con "Certificación FDA". Cero conceptos de 'bolsa barata'.</p>
+                </div>
+                
+                <div class="bg-gray-800 p-5 rounded shadow">
+                    <div class="text-3xl mb-2">☕</div>
+                    <strong class="text-white text-md block mb-2">Regla SGE Café (Conceptual)</strong>
+                    <p class="text-sm text-gray-300">El algoritmo de IA (SGE) prioriza respuestas técnicas de valor. Incluir obligatoriamente esta base en español: <br><br><em class="text-brandYellow border-l-2 border-brandYellow pl-2 block bg-gray-900 p-2 text-xs">"El café recién tostado libera mucho CO2. La válvula desgasificadora permite que el exceso de gas escape e impide la entrada de oxígeno, conservando el aroma."</em></p>
+                </div>
+
+                <div class="bg-gray-800 p-5 rounded shadow">
+                    <div class="text-3xl mb-2">⚙️</div>
+                    <strong class="text-white text-md block mb-2">Pivotaje Maquinaria</strong>
+                    <p class="text-sm text-gray-300">Prohibido mezclar o vender "fierros". El insight es vender "Proyectos a medida". La narrativa sigue la lógica: <span class="text-brandGreen font-bold">Diagnóstico Integral ➜ Solución (Full Servo Eco Pouch O Máquina Valvulera)</span>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deep Dive Email Marketing (Merged Strategy + Timeline) -->
+        <div class="bg-darker p-6 rounded-lg shadow-lg border-t-4 border-brandGreen mb-8">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+                <span class="text-brandGreen mr-2">🧠</span> Estrategia Avanzada: Flujo B2B Email Nurturing
+            </h3>
+            
+            <!-- Bloque Superior: Diagrama de Flujo y Lead Scoring -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Left: Visualizer -->
+                <div class="bg-gray-900 p-6 rounded-lg border border-gray-700 h-full flex flex-col justify-center">
+                    <h4 class="text-brandGreen font-bold mb-4 border-b border-gray-600 pb-2 text-center">Circuito Base: Lanzamiento Colombia</h4>
+                    
+                    <div class="flex flex-col items-center w-full max-w-md mx-auto">
+                        <!-- Node 1 -->
+                        <div class="flow-node bg-gray-800 w-full font-bold text-white shadow-md">
+                            INICIO: 308 Contactos (Base/Catálogo)
+                        </div>
+                        <div class="flow-line-v"></div>
+                        
+                        <!-- Node 2 -->
+                        <div class="flow-node bg-gray-700 w-full font-bold text-white border-brandBlue shadow-md">
+                            ENVÍO 1: LANZAMIENTO<br>
+                            <span class="text-xs font-normal text-brandBlue">"Noticia Stock Local (Bogotá, Medellín, Cali)"</span>
+                        </div>
+                        <div class="flow-line-v"></div>
+                        <div class="text-xs text-gray-400 mb-1">¿Abrieron?</div>
+                        
+                        <!-- Split Container -->
+                        <div class="relative w-full flex justify-between mt-2">
+                            <div class="flow-connector-h" style="width: calc(100% - 30px); left: 15px;"></div>
+                            
+                            <!-- Left Branch (Sí) -->
+                            <div class="w-[48%] flex flex-col items-center">
+                                <div class="flow-line-v mt-0" style="height: 10px;"></div>
+                                <div class="flow-node bg-gray-800 w-full mb-2">SÍ (28.4%)<br><span class="text-[10px] text-gray-400">87 contactos</span></div>
+                                <div class="text-[10px] text-gray-400 mb-1">¿Clic WhatsApp?</div>
+                                <div class="w-full flex gap-1">
+                                    <div class="w-1/2 flex flex-col items-center">
+                                        <div class="flow-line-v" style="height: 10px;"></div>
+                                        <div class="flow-node bg-red-900/40 border-brandRed text-white w-full shadow-lg p-1 text-[10px]">
+                                            <span class="text-brandRed font-bold">HOT LEADS</span><br>Felipe (~4)
+                                        </div>
+                                        <div class="flow-line-v" style="height: 10px;"></div>
+                                        <div class="flow-node bg-gray-800 w-full text-[10px] p-1">Negociación</div>
+                                    </div>
+                                    <div class="w-1/2 flex flex-col items-center">
+                                        <div class="flow-line-v" style="height: 10px;"></div>
+                                        <div class="flow-node bg-gray-800 w-full mb-2 text-[10px] p-1">Interés Pasivo<br><span class="text-gray-400">(~83)</span></div>
+                                        <div class="flow-line-v" style="height: 10px;"></div>
+                                        <div class="flow-node bg-[#84cc16] text-black font-bold w-full shadow-md text-[10px] p-1">
+                                            48 HRS<br>Envío 2<br>(Casos Éxito)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Branch (No) -->
+                            <div class="w-[48%] flex flex-col items-center">
+                                <div class="flow-line-v mt-0" style="height: 10px;"></div>
+                                <div class="flow-node bg-gray-800 w-full mb-2">NO (71.6%)<br><span class="text-[10px] text-gray-400">221 contactos</span></div>
+                                <div class="flow-line-v" style="height: 10px;"></div>
+                                <div class="flow-node bg-[#84cc16] text-black font-bold w-full shadow-md mt-4">
+                                    48 HRS DESPUÉS<br>Reenvío Email 1<br>(Cambio Asunto)
+                                </div>
+                                <div class="flow-line-v" style="height: 10px;"></div>
+                                <div class="flow-node bg-gray-800 w-full mb-2 text-[10px] p-1">Est. +33 aperturas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Deep Dive Context -->
+                <div>
+                    <h4 class="text-brandGreen font-bold mb-3 border-b border-gray-600 pb-1">Profundización Táctica (Lead Scoring B2B)</h4>
+                    <p class="text-sm text-gray-400 mb-4">No todos los leads son iguales. Evolucionamos de MQL a SQL mediante cualificación por dolores específicos.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 p-4 rounded border-l-2 border-brandBlue shadow">
+                            <strong class="text-white text-sm block mb-1">1. El Protocolo "Hot Lead" (Vía Rápida)</strong>
+                            <p class="text-xs text-gray-300">Si en el correo 1 el usuario hace clic en "Consultar Stock", sale del workflow automatizado. Trigger a <strong>Felipe</strong> para abordaje consultivo manual: <em>"Noté que revisaste nuestro stock con entrega nacional, ¿estás buscando reemplazar proveedor por fricciones logísticas o evaluando un nuevo proyecto?"</em>.</p>
+                        </div>
+                        
+                        <div class="bg-gray-800 p-4 rounded border-l-2 border-[#84cc16] shadow">
+                            <strong class="text-white text-sm block mb-1">2. Nurturing Pasivo: Segmentación por "Pain Points"</strong>
+                            <p class="text-xs text-gray-300 mb-2">Para los leads pasivos, el "Envío 2" perfila el interés de cara a ventas con enlaces diferenciados:</p>
+                            <ul class="text-xs text-gray-400 list-disc pl-4 space-y-1">
+                                <li><strong>Enlace A (Insumos):</strong> "Reducción de devoluciones por pérdida de vacío con válvula europea."</li>
+                                <li><strong>Enlace B (Maquinaria):</strong> "Conozca nuestro Diagnóstico Integral para proyectos de empaque."</li>
+                            </ul>
+                            <p class="text-xs text-brandGreen mt-2 font-bold">Insight: El clic determina qué vendedor asignamos.</p>
+                        </div>
+
+                        <div class="bg-gray-800 p-4 rounded border border-gray-600 shadow">
+                            <strong class="text-gray-300 text-sm block mb-1">3. Reactivation Loop (Día 15)</strong>
+                            <p class="text-xs text-gray-400">Impacto a los "ignorados" (~188) con un <strong>Plain Text Email</strong> (simula estar escrito directo del Gmail del Gerente). Asunto: <em>"Pregunta rápida sobre sus empaques actuales"</em> para romper ceguera publicitaria.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque Inferior: Cronograma de 3 Semanas -->
+            <div class="border-t border-gray-700 pt-6">
+                <h4 class="text-brandYellow font-bold mb-4 flex items-center">
+                    <span class="mr-2">📅</span> Cronograma Táctico: Contenido (Abril - 3 Semanas)
+                </h4>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Semana 1 -->
+                    <div class="bg-gray-900 p-5 rounded-lg border border-gray-700 relative">
+                        <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">SEMANA 1</div>
+                        <h4 class="text-brandBlue font-bold mb-2">El Lanzamiento ("Llegamos")</h4>
+                        <p class="text-xs text-gray-400 mb-4">Reactivación de la base de datos completa. Generación de tracción inicial.</p>
+                        <div class="space-y-3">
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">🎯 Objetivo del Email:</span>
+                                <p class="text-xs text-gray-400">Anunciar apertura en Colombia y mostrar autoridad con material visual.</p>
+                            </div>
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">📝 Temática (Copy):</span>
+                                <p class="text-xs text-gray-400">"Noticia: Italzip ya está en Colombia (Con bodegas y envíos a Bogotá, Medellín, Cali). Conoce nuestros Casos de Éxito en Andinapack".</p>
+                            </div>
+                            <div class="bg-blue-900/30 border border-brandBlue p-2 rounded text-center">
+                                <span class="text-xs text-brandBlue font-bold">CTA: Ver Casos de Éxito</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Semana 2 -->
+                    <div class="bg-gray-900 p-5 rounded-lg border border-gray-700 relative">
+                        <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">SEMANA 2</div>
+                        <h4 class="text-brandYellow font-bold mb-2">Producto y Técnica (Zippers)</h4>
+                        <p class="text-xs text-gray-400 mb-4">Nutrición de quienes abrieron el correo 1. Foco en resolver dudas de calidad.</p>
+                        <div class="space-y-3">
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">🎯 Objetivo del Email:</span>
+                                <p class="text-xs text-gray-400">Atacar el dolor de "falta de asesoría" y tiempos de entrega.</p>
+                            </div>
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">📝 Temática (Copy):</span>
+                                <p class="text-xs text-gray-400">"¿Fricciones logísticas con su proveedor actual?". Destacar stock de Zippers Industriales de entrega nacional y Certificaciones FDA.</p>
+                            </div>
+                            <div class="bg-yellow-900/30 border border-brandYellow p-2 rounded text-center">
+                                <span class="text-xs text-brandYellow font-bold">CTA: Solicitar Asesoría Técnica</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Semana 3 -->
+                    <div class="bg-gray-900 p-5 rounded-lg border border-gray-700 relative">
+                        <div class="absolute top-0 right-0 bg-gray-700 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">SEMANA 3</div>
+                        <h4 class="text-brandGreen font-bold mb-2">Automatización y Maquinaria</h4>
+                        <p class="text-xs text-gray-400 mb-4">Cierre del embudo para leads maduros y sector cafetero.</p>
+                        <div class="space-y-3">
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">🎯 Objetivo del Email:</span>
+                                <p class="text-xs text-gray-400">Ofrecer un Diagnóstico Integral para proyectos de mejora productiva.</p>
+                            </div>
+                            <div class="bg-gray-800 p-3 rounded">
+                                <span class="text-xs font-bold text-gray-300 block mb-1">📝 Temática (Copy):</span>
+                                <p class="text-xs text-gray-400">"Deje de comprar fierros, invierta en proyectos a medida". Ofrecer diagnóstico para evaluar la necesidad de una Full Servo Eco Pouch O Máquinas Valvuleras de calidad europea.</p>
+                            </div>
+                            <div class="bg-green-900/30 border border-brandGreen p-2 rounded text-center">
+                                <span class="text-xs text-brandGreen font-bold">CTA: Agendar Diagnóstico Integral</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-800 border-l-4 border-brandRed text-sm text-gray-300 rounded shadow-md">
+                    <strong class="text-white block mb-1">Manejo de "Hot Leads":</strong> Si en CUALQUIER correo de esta secuencia el usuario hace clic en el botón de WhatsApp, sale de la automatización y pasa a gestión comercial directa (1 a 1).
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: BRIEF AGENCIA (EDITABLE) -->
+    <!-- ========================================== -->
+    <div id="tab-brief" class="tab-content hidden">
+        <div class="bg-darker p-8 rounded-lg shadow-lg border-t-8 border-brandYellow max-w-4xl mx-auto">
+            
+            <div class="text-center mb-8 border-b border-gray-700 pb-6">
+                <span class="bg-brandYellow text-black font-bold px-3 py-1 rounded-full text-xs uppercase tracking-widest mb-4 inline-block">Documento Oficial</span>
+                <h2 class="text-3xl font-bold text-white mb-2">Brief Estratégico: Campaña Performance Abril</h2>
+                <p class="text-gray-400 mb-4">Campaña de Apertura Colombia y Optimización de Conversión.</p>
+                <div class="inline-flex gap-4 text-xs font-bold text-gray-300 bg-gray-900 px-4 py-2 rounded-full border border-gray-600">
+                    <span>Vigencia: 3 Semanas</span>
+                    <span class="border-l border-gray-600 pl-4">Agencia: Böll</span>
+                    <span class="border-l border-gray-600 pl-4">Presupuesto All-Inclusive: $1.000.000 CLP</span>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                
+                <!-- BLOCK 1: Contexto -->
+                <section class="relative group">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-brandBlue flex items-center"><span class="mr-2">🌍</span> 1. Contexto y Desafío Estratégico</h3>
+                        <button onclick="toggleEdit('edit-contexto', this)" class="no-print bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded transition opacity-0 group-hover:opacity-100">✏️ Editar</button>
+                    </div>
+                    <div id="edit-contexto" class="bg-gray-800 p-5 rounded text-sm text-gray-300 leading-relaxed" contenteditable="false">
+                        <p class="mb-2">Basado en sesión interna, identificamos un embudo de ventas con fugas (baja calidad de contenido y baja tasa de conversión).</p>
+                        <ul class="list-disc pl-5 mb-2">
+                            <li><strong>Hitos:</strong> Apertura de mercado en Colombia. Generar tracción inicial.</li>
+                            <li><strong>Dolores a atacar:</strong> Falta de asesoría, dudas de calidad, tiempos de entrega.</li>
+                        </ul>
+                        <p><strong class="text-brandBlue">IDEA FUERZA: "Performance sobre Alcance".</strong> No buscamos branding masivo. Buscamos leads calificados B2B listos para hablar con ventas. Cada peso va a alta intención de compra.</p>
+                    </div>
+                </section>
+
+                <!-- BLOCK 2: Estrategia -->
+                <section class="relative group">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-brandYellow flex items-center"><span class="mr-2">🏆</span> 2. Estrategia: Autoridad y Prueba Social</h3>
+                        <button onclick="toggleEdit('edit-estrategia', this)" class="no-print bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded transition opacity-0 group-hover:opacity-100">✏️ Editar</button>
+                    </div>
+                    <div id="edit-estrategia" class="bg-gray-800 p-5 rounded text-sm text-gray-300 leading-relaxed" contenteditable="false">
+                        <p class="mb-2">La agencia debe concentrar el 80% de esfuerzos en elementos de ALTO IMPACTO y ALTA RELEVANCIA:</p>
+                        <ul class="list-disc pl-5">
+                            <li><strong>Casos de Éxito:</strong> Motor de la narrativa (mostrar que ya funcionamos).</li>
+                            <li><strong>Certificaciones de Calidad:</strong> Elemento no negociable para B2B.</li>
+                            <li><strong>Personalización / Asesoría Técnica:</strong> Valor diferencial frente a competencia genérica.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- BLOCK 3: Ecosistema -->
+                <section class="relative group">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold text-white flex items-center"><span class="mr-2">🌐</span> 3. El Ecosistema Digital Centralizado</h3>
+                        <button onclick="toggleEdit('edit-eco', this)" class="no-print bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded transition opacity-0 group-hover:opacity-100">✏️ Editar</button>
+                    </div>
+                    <div id="edit-eco" class="bg-gray-800 p-5 rounded text-sm text-gray-300 leading-relaxed space-y-4" contenteditable="false">
+                        <div>
+                            <strong class="text-brandBlue border-b border-gray-600 block mb-1">A. El Hub de Conversión (Landing Page)</strong>
+                            <p>Prioridad #1. Táctica: Narrativa "Llegamos a Colombia". Foco en Personalización y Asesoría. Destacar Certificaciones y resolver "¿Entrega local dónde?". Herramientas: Botón WhatsApp prominente y Formulario B2B corto.</p>
+                        </div>
+                        <div>
+                            <strong class="text-brandBlue border-b border-gray-600 block mb-1">B. Generación de Tráfico (El 100% de la pauta)</strong>
+                            <ul class="list-disc pl-5">
+                                <li><strong>SEM (Search):</strong> Intención de compra activa ("zippers industriales", "maquinaria packaging"). Anuncios de Asesoría Gratis.</li>
+                                <li><strong>YouTube:</strong> Reutilización de 5 videos de Andinapack. Bumper ads B2B.</li>
+                                <li><strong>Meta Ads:</strong> Segmentación industrial/Pymes. Narrativa: Casos de Éxito y Apertura.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong class="text-brandBlue border-b border-gray-600 block mb-1">C. Nutrición (Email Marketing)</strong>
+                            <p>Acción sobre BBDD propia. Madurar y reenganchar leads con la noticia de la apertura en las bodegas a nivel nacional.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- BLOCK 4: Reglas & KPIs -->
+                <section class="relative group">
+                    <h3 class="text-xl font-bold text-white mb-3 flex items-center"><span class="mr-2">⚖️</span> 4. Reglas de Engagement & KPIs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="bg-green-900/20 border border-brandGreen p-5 rounded">
+                            <h4 class="text-brandGreen font-bold mb-3 uppercase text-sm tracking-wider">✅ Lo que SÍ somos</h4>
+                            <ul class="text-sm text-gray-300 space-y-2 list-disc pl-4">
+                                <li>Vendedores de insumos B2B a nivel nacional.</li>
+                                <li>Arquitectos de <strong>proyectos con diagnóstico integral</strong>.</li>
+                                <li>Comunicación técnica y "Cero Fricciones".</li>
+                            </ul>
+                            <div class="mt-4 border-t border-brandGreen/30 pt-3">
+                                <h4 class="text-white font-bold mb-1 text-sm">🎯 KPIs Solicitados a Agencia:</h4>
+                                <ul class="text-xs text-gray-300 list-disc pl-4">
+                                    <li>Costo por Lead Calificado (CPL B2B).</li>
+                                    <li>Lead to WhatsApp Conversion Rate.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-red-900/20 border border-brandRed p-5 rounded relative group/edit">
+                            <button onclick="toggleEdit('edit-donts', this)" class="absolute top-2 right-2 no-print bg-red-800 hover:bg-red-700 text-white text-xs px-2 py-1 rounded transition opacity-0 group-hover/edit:opacity-100">✏️</button>
+                            <h4 class="text-brandRed font-bold mb-3 uppercase text-sm tracking-wider">❌ PROHIBIDO (Negative KWs)</h4>
+                            <div id="edit-donts" class="text-sm text-gray-300" contenteditable="false">
+                                <ul class="space-y-2 list-disc pl-4">
+                                    <li>Tráfico de <strong>MAQUILA</strong> o co-packing.</li>
+                                    <li>Búsquedas de <strong>"Servicio de Sellado"</strong> o "Sellado manual".</li>
+                                    <li>Términos B2C (Retail, Mercadolibre, "bolsas ziploc para casa").</li>
+                                    <li>Nunca usar palabras como "barato". Somos eficiencia, no precio bajo.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+                
+                <!-- Firma -->
+                <div class="text-center mt-8 pt-6 border-t border-gray-700">
+                    <p class="text-gray-500 text-xs uppercase tracking-widest">Documento Editable - Guarde antes de Exportar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // Tab System Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-brandBlue', 'text-brandBlue');
+                el.classList.add('border-transparent', 'text-gray-400');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-gray-400');
+            activeBtn.classList.add('border-brandBlue', 'text-brandBlue');
+        }
+
+        // Editable Blocks Logic
+        function toggleEdit(elementId, btnElement) {
+            const el = document.getElementById(elementId);
+            const isEditing = el.getAttribute('contenteditable') === 'true';
+            
+            if (isEditing) {
+                // Save state
+                el.setAttribute('contenteditable', 'false');
+                btnElement.innerText = '✏️ Editar';
+                btnElement.classList.remove('bg-green-600', 'hover:bg-green-500');
+                btnElement.classList.add('bg-gray-700', 'hover:bg-gray-600');
+            } else {
+                // Edit state
+                el.setAttribute('contenteditable', 'true');
+                el.focus();
+                btnElement.innerText = '💾 Guardar';
+                btnElement.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                btnElement.classList.add('bg-green-600', 'hover:bg-green-500');
+            }
+        }
+
+        // Data Arrays (Expanded for more rotation variety)
+        const keywordData = {
+            c1: [
+                '"zipper coextruido colombia"', '"comprar ZPE 101 C"', '"distribuidor ZPE 121 C"', '"zipper industrial ZPE 105 S"', 
+                '"cierre hermético para empaque flexible"', '"zipper polietileno alta barrera"', '"fabricantes de zipper para bolsas"',
+                '"zippers con certificación FDA"', '"entrega rápida zipper colombia"', '"insumos empaque sin fricciones"',
+                '"zipper hermeticidad garantizada"', '"stock local cierres hermeticos"', '"zipper empaques convertidores"',
+                '"proveedor zipper industrial bogota"', '"proveedor zipper industrial cali"', '"cierres hermeticos medellin"', 
+                '"cierre zipper pe/pe"', '"zipper para sellado alta velocidad"', '"cotizar zipper industrial volumen"'
+            ],
+            c2: [
+                '"válvula unidireccional café"', '"válvulas desgasificadoras IT 616"', '"válvula IT 113 empaques"', 
+                '"protección aroma café especial"', '"válvula de desgasificación para exportación"', '"proveedor válvulas café colombia"',
+                '"válvulas reciclables pp y pe"', '"válvulas desgasificadoras calidad europea"', '"proyectos a medida valvulas empaque"',
+                '"evitar que bolsa de cafe se infle"', '"válvulas para empaques de pet food"', '"válvula frescura tostado cafe"', 
+                '"válvula liberación co2"', '"insumos para empacadoras de cafe"', '"comprar valvulas desgasificadoras medellin"'
+            ],
+            c3: [
+                '"máquina full servo eco pouch"', '"máquina valvulera automática"', '"maquinaria full servo empaques"', 
+                '"máquina aplicadora de válvulas corner"', '"máquina valvulera industrial semi automática"', '"proyectos a medida empaque flexible"',
+                '"diagnóstico integral maquinaria empaque"', '"soluciones tecnología empaque"', '"manejo sustentable linea de empaque"',
+                '"máquinas empaque monomaterial"', '"optimización oee empaques"', '"reducción de scrap maquinaria"',
+                '"innovación tecnológica empaque colombia"', '"asesoría maquinaria industrial empaque"', '"evaluación linea produccion pouch"'
+            ],
+            c4: [
+                '-[maquila]', '-[co-packing]', '-[retail]', '-[mercadolibre]', '-[reparaciones caseras]', 
+                '-[sellado manual]', '-[servicio de sellado]', '-[bolsas baratas]', '-[selladora de pedal]',
+                '-[como arreglar bolsa zipper]', '-[bolsas ziploc]', '-[bolsas para alimentos por mayor]',
+                '-[fabrica de empaques de plastico]', '-[impresion de bolsas flexo]'
+            ],
+            ce: [
+                '"válvula unidireccional café quindío"', '"proveedor válvulas desgasificadoras pereira"', 
+                '"bolsas stand up con válvula manizales"', '"zipper para empaque café de especialidad"', 
+                '"tecnología desgasificación café exportación"', '"empacadoras servo para café en grano eafetero"',
+                '"soluciones empaque cafe armenia"'
+            ]
+        };
+
+        const adsData = {
+            c1: {
+                h1: ["Zippers Certificación FDA", "Cierres Herméticos Industriales", "Zippers para Convertidores", "ZPE 101 C Entrega Nacional"],
+                h2: ["Envíos a Bogotá, Medellín y Cali", "Sin Fricciones Logísticas", "Hermeticidad Garantizada", "Despacho a todo Colombia"],
+                h3: ["Italzip Colombia", "Cotiza Stock Local", "Asesoría Insumos", "Soluciones de Empaque"],
+                desc: [
+                    "Agilidad en entrega a todo Colombia (Bogotá, Medellín, Cali). Calidad del insumo zipper con hermeticidad certificada FDA. Elimine fricciones.",
+                    "Zippers industriales ZPE listos para entrega en las principales ciudades de Colombia. Certificados por la FDA para contacto con alimentos.",
+                    "Calidad del insumo zipper sin compromisos. Entregas a todo el país para mantener su línea de producción operando. Contacte hoy.",
+                    "Evite demoras en su línea de empaque. Stock de Zippers PE/PE con despacho nacional a todo Colombia. Solicite asesoría técnica."
+                ]
+            },
+            c2: {
+                h1: ["Válvulas Desgasificadoras PP/PE", "Válvulas Calidad Europea", "Válvulas para Café Especial", "Protección de Aroma IT 616"],
+                h2: ["Proyectos a Medida", "100% Reciclables", "Confianza y Tecnología", "Evite Rupturas de Empaque"],
+                h3: ["Italzip Colombia", "Catálogo Técnico", "Soluciones Café", "Hable con un Experto"],
+                desc: [
+                    "El café recién tostado libera CO₂. Prevenga rupturas con válvulas desgasificadoras. El exceso de gas escapa, el aroma se queda.",
+                    "Válvulas desgasificadoras de calidad Europea. Soluciones 100% reciclables PP/PE para la industria del café. Proyectos a medida.",
+                    "Conserve el aroma íntegro de su café. Nuestras válvulas evitan la entrada de oxígeno mientras liberan el CO₂. Tecnología Europea.",
+                    "Automatización y calidad europea. Proveemos válvulas desgasificadoras diseñadas para líneas de alta velocidad. Agende diagnóstico."
+                ]
+            },
+            c3: {
+                h1: ["Proyectos de Empaque a Medida", "Diagnóstico Integral Industrial", "Máquina Full Servo Eco Pouch", "Máquinas Valvuleras Automáticas"],
+                h2: ["Diagnóstico Integral", "Proyectos a Medida", "Tecnología e Innovación", "Reducción de Scrap"],
+                h3: ["Italzip Soluciones", "Expertos en Empaque", "Agende Consultoría", "Contacte a Ventas"],
+                desc: [
+                    "El foco es su negocio. Proyectos con Diagnóstico Integral para definir la solución independiente óptima para su línea de producción.",
+                    "No vendemos fierros, diseñamos proyectos de empaque. Agende su diagnóstico integral para evaluar tecnología Full Servo Eco Pouch.",
+                    "Soluciones independientes a la medida de su negocio. Optimice su producción con máquinas aplicadoras de válvulas corner o automáticas.",
+                    "Innovación y tecnología en maquinaria. Diagnóstico integral B2B para potenciar su planta con Full Servo Eco Pouch o Valvuleras."
+                ]
+            }
+        };
+
+        function formatKeywords(arr) { return arr.join('\n'); }
+
+        function updateKeywords() {
+            const select = document.getElementById('clusterSelect').value;
+            const kwArray = keywordData[select];
+            document.getElementById('keywordBox').value = formatKeywords(kwArray);
+            document.getElementById('kwCount').innerText = `Total: ${kwArray.length}`;
+        }
+
+        function addKeywords() {
+            const select = document.getElementById('clusterSelect').value;
+            const newKwsText = document.getElementById('newKeywordsInput').value.trim();
+            if(!newKwsText) return;
+            const newKwsArray = newKwsText.split('\n').map(k => k.trim()).filter(k => k.length > 0);
+            keywordData[select].push(...newKwsArray);
+            document.getElementById('newKeywordsInput').value = '';
+            updateKeywords();
+            const box = document.getElementById('keywordBox');
+            box.style.borderColor = '#10b981';
+            setTimeout(() => { box.style.borderColor = '#374151'; }, 500);
+        }
+
+        function exportCSV() {
+            const select = document.getElementById('clusterSelect').value;
+            const text = document.getElementById('keywordBox').value;
+            if(!text) return;
+            const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `italzip_keywords_${select}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        // Modular shuffle function (per pillar)
+        function renderRandomAd(clusterId, DOM_h, DOM_d) {
+            const data = adsData[clusterId];
+            const h1 = randomItem(data.h1);
+            const h2 = randomItem(data.h2);
+            const h3 = randomItem(data.h3);
+            const desc = randomItem(data.desc);
+            
+            const headElement = document.getElementById(DOM_h);
+            const descElement = document.getElementById(DOM_d);
+            
+            // Visual feedback
+            headElement.style.opacity = 0;
+            descElement.style.opacity = 0;
+            
+            setTimeout(() => {
+                headElement.innerText = `${h1} | ${h2} | ${h3}`;
+                descElement.innerText = desc;
+                headElement.style.opacity = 1;
+                descElement.style.opacity = 1;
+            }, 150);
+        }
+
+        function downloadAsHtml() {
+            // Ensure all editable elements are set back to false to avoid exporting weird states
+            document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                el.setAttribute('contenteditable', 'false');
+            });
+            // Reset edit buttons visual state
+            document.querySelectorAll('.group button').forEach(btn => {
+                if(btn.innerText.includes('Guardar')) {
+                    btn.innerText = '✏️ Editar';
+                    btn.classList.remove('bg-green-600', 'hover:bg-green-500');
+                    btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                }
+            });
+
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Consola_SEM_Italzip_Agencia_Final_V3.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+
+        // Init Data
+        updateKeywords();
+    </script>
+</body>
+</html>
